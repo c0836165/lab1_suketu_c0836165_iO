@@ -19,7 +19,9 @@ class ViewController: UIViewController {
     @IBOutlet weak var turnlabel: UILabel!
     
    
+    @IBOutlet weak var crosswin: UILabel!
     
+    @IBOutlet weak var zerowin: UILabel!
     @IBOutlet weak var c3: UIButton!
     @IBOutlet weak var c2: UIButton!
     @IBOutlet weak var c1: UIButton!
@@ -35,6 +37,7 @@ class ViewController: UIViewController {
     var zero = "0"
     var cross = " X"
     var ClearBoard = [UIButton]()
+    var lastturn : UIButton?
     
     
     var zeroscore = 0
@@ -44,9 +47,12 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         initBoard()
+         
         
         
     }
+    
+  
     
     // inorder to initialize and add into the board
     func initBoard(){
@@ -88,10 +94,11 @@ class ViewController: UIViewController {
     
     
     
-    
+    // tap on action to perform some action on the board
     @IBAction func tapaction(_ sender: UIButton)
     {
         actionOnBoard(sender)
+         lastturn = sender
         
         if checkForWinner(cross)
         {
@@ -107,21 +114,25 @@ class ViewController: UIViewController {
         {
             resultAlert(title: " match draw")
         }
+        
+        zerowin.text = String(zeroscore)
+        crosswin.text = String(crossscore)
     }
     
     
-    // to show the alert box at the end
+    // to show the alert box to reset the board
     func resultAlert(title: String)
         {
-            let message = "       TEAM CROSS'S WIN POINT   " + String(crossscore) + "                                             TEAM ZERO'S WIN POINT " + String(zeroscore)
-            
-            let msgalert = UIAlertController(title: title, message: message, preferredStyle: .actionSheet)
+           
+            let msgalert = UIAlertController(title: title, message: nil , preferredStyle: .actionSheet)
             
             msgalert.addAction(UIAlertAction(title: " Reset Board ", style: .default, handler: { (_) in self.resetTheBoard()}))
             
             self.present(msgalert, animated: true)
             
         }
+    
+    // to show the full board
     func fullBoard() -> Bool
     {
         for button in ClearBoard
@@ -182,7 +193,7 @@ class ViewController: UIViewController {
         return button.title(for: .normal) == symbol
     }
     
-    // to perform the action on the board
+    // to perform some action on the board
    
     func actionOnBoard(_ sender : UIButton){
         if (sender.title(for: .normal) == nil)
@@ -200,12 +211,31 @@ class ViewController: UIViewController {
                 turnlabel.text = zero
             }
             
-            sender.isEnabled = false ;
+        
         }
     }
     
-   
-
-
+    
+    
+    // shake gesture to perform the operation that "undo" the player turn
+    override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
+            if event?.subtype == UIEvent.EventSubtype.motionShake {
+                
+                lastturn?.setTitle(nil, for: .normal)
+                if(currentTurn == PlayerTurn.zero)
+                    {
+                    currentTurn = PlayerTurn.cross
+                               turnlabel.text = cross
+                    }
+                    else
+                               {
+                               currentTurn = PlayerTurn.zero
+                               turnlabel.text = zero
+                               }
+               
+            }
+    }
+    
 }
+
 
